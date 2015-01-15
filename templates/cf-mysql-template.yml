@@ -33,17 +33,17 @@ update:
 networks: (( merge ))
 
 resource_pools:
-  - name: services-small
+  - name: services_small_z1
     network: services1
     stemcell: (( merge ))
     cloud_properties: (( merge ))
 
 jobs:
-  - name: mysql
+  - name: mysql_z1
     release: cf-mysql
     template: mysql
     instances: (( merge || 3 ))
-    resource_pool: services-small
+    resource_pool: services_small_z1
     persistent_disk: 100000
     networks:
     - name: services1
@@ -53,33 +53,33 @@ jobs:
       max_connections: 1500
       haproxy_mysql_user: haproxy_check
       proxy_ips:
-      - (( jobs.proxy.networks.services1.static_ips.[0] ))
-      cluster_ips: (( jobs.mysql.networks.services1.static_ips ))
+      - (( jobs.proxy_z1.networks.services1.static_ips.[0] ))
+      cluster_ips: (( jobs.mysql_z1.networks.services1.static_ips ))
       seeded_databases: ~
       syslog_aggregator: (( meta.syslog_aggregator ))
       network_name: services1
-  - name: proxy
+  - name: proxy_z1
     release: cf-mysql
     template: proxy
     instances: (( merge || 2 ))
-    resource_pool: services-small
+    resource_pool: services_small_z1
     networks:
     - name: services1
       static_ips: (( merge || static_ips(4, 5) ))
     properties:
       <<: (( merge || nil ))
-      haproxy_mysql_user: (( jobs.mysql.properties.haproxy_mysql_user ))
-      mysql_ips: (( jobs.mysql.properties.cluster_ips ))
+      haproxy_mysql_user: (( jobs.mysql_z1.properties.haproxy_mysql_user ))
+      mysql_ips: (( jobs.mysql_z1.properties.cluster_ips ))
       network_name: services1
       syslog_aggregator: (( meta.syslog_aggregator ))
       nats: (( meta.nats ))
       external_domain: (( meta.external_domain ))
       haproxy_stats_password: (( merge ))
-  - name: cf-mysql-broker
+  - name: cf-mysql-broker_z1
     release: cf-mysql
     template: cf-mysql-broker
     instances: 2
-    resource_pool: services-small
+    resource_pool: services_small_z1
     networks:
     - name: services1
     properties:
@@ -148,70 +148,70 @@ jobs:
               displayName: (( merge || "1 GB Dev" ))
       mysql_node:
         host: (( merge || jobs.proxy.networks.services1.static_ips.[0] )) # HAProxy IP
-        admin_password: (( jobs.mysql.properties.admin_password ))
-        persistent_disk: (( jobs.mysql.persistent_disk))
+        admin_password: (( jobs.mysql_z1.properties.admin_password ))
+        persistent_disk: (( jobs.mysql_z1.persistent_disk))
   - name: broker-registrar
     template: broker-registrar
     release: cf-mysql
     instances: 1
-    resource_pool: services-small
+    resource_pool: services_small_z1
     lifecycle: errand
     networks:
     - name: services1
     properties:
       cf:
-        api_url: (( jobs.cf-mysql-broker.properties.cc_api_uri ))
+        api_url: (( jobs.cf-mysql-broker_z1.properties.cc_api_uri ))
         admin_username: (( merge ))
         admin_password: (( merge ))
       broker:
         name: p-mysql
-        host: (( jobs.cf-mysql-broker.properties.external_host ))
-        username: (( jobs.cf-mysql-broker.properties.auth_username ))
-        password: (( jobs.cf-mysql-broker.properties.auth_password ))
+        host: (( jobs.cf-mysql-broker_z1.properties.external_host ))
+        username: (( jobs.cf-mysql-broker_z1.properties.auth_username ))
+        password: (( jobs.cf-mysql-broker_z1.properties.auth_password ))
   - name: broker-deregistrar
     template: broker-deregistrar
     release: cf-mysql
     instances: 1
-    resource_pool: services-small
+    resource_pool: services_small_z1
     lifecycle: errand
     networks:
     - name: services1
     properties:
       cf:
-        api_url: (( jobs.cf-mysql-broker.properties.cc_api_uri ))
+        api_url: (( jobs.cf-mysql-broker_z1.properties.cc_api_uri ))
         admin_username: (( merge ))
         admin_password: (( merge ))
       broker:
         name: p-mysql
-        host: (( jobs.cf-mysql-broker.properties.external_host ))
-        username: (( jobs.cf-mysql-broker.properties.auth_username ))
-        password: (( jobs.cf-mysql-broker.properties.auth_password ))
+        host: (( jobs.cf-mysql-broker_z1.properties.external_host ))
+        username: (( jobs.cf-mysql-broker_z1.properties.auth_username ))
+        password: (( jobs.cf-mysql-broker_z1.properties.auth_password ))
   - name: acceptance-tests
     template: acceptance-tests
     release: cf-mysql
     instances: 1
-    resource_pool: services-small
+    resource_pool: services_small_z1
     lifecycle: errand
     networks:
     - name: services1
     properties:
       cf:
-        api_url: (( jobs.cf-mysql-broker.properties.cc_api_uri ))
+        api_url: (( jobs.cf-mysql-broker_z1.properties.cc_api_uri ))
         admin_username: (( merge ))
         admin_password: (( merge ))
         apps_domain: (( meta.apps_domain ))
         skip_ssl_validation: (( merge || false ))
       broker:
-        host: (( jobs.cf-mysql-broker.properties.external_host ))
+        host: (( jobs.cf-mysql-broker_z1.properties.external_host ))
       service:
-        max_user_connections_default: (( jobs.cf-mysql-broker.properties.max_user_connections_default ))
-        name: (( jobs.cf-mysql-broker.properties.services.[0].name ))
+        max_user_connections_default: (( jobs.cf-mysql-broker_z1.properties.max_user_connections_default ))
+        name: (( jobs.cf-mysql-broker_z1.properties.services.[0].name ))
         plans:
-          - plan_name: (( jobs.cf-mysql-broker.properties.services.[0].plans.[0].name ))
-            max_storage_mb: (( jobs.cf-mysql-broker.properties.services.[0].plans.[0].max_storage_mb ))
-            max_user_connections: (( jobs.cf-mysql-broker.properties.services.[0].plans.[0].max_user_connections ))
-          - plan_name: (( jobs.cf-mysql-broker.properties.services.[0].plans.[1].name ))
-            max_storage_mb: (( jobs.cf-mysql-broker.properties.services.[0].plans.[1].max_storage_mb ))
-            max_user_connections: (( jobs.cf-mysql-broker.properties.services.[0].plans.[1].max_user_connections ))
+          - plan_name: (( jobs.cf-mysql-broker_z1.properties.services.[0].plans.[0].name ))
+            max_storage_mb: (( jobs.cf-mysql-broker_z1.properties.services.[0].plans.[0].max_storage_mb ))
+            max_user_connections: (( jobs.cf-mysql-broker_z1.properties.services.[0].plans.[0].max_user_connections ))
+          - plan_name: (( jobs.cf-mysql-broker_z1.properties.services.[0].plans.[1].name ))
+            max_storage_mb: (( jobs.cf-mysql-broker_z1.properties.services.[0].plans.[1].max_storage_mb ))
+            max_user_connections: (( jobs.cf-mysql-broker_z1.properties.services.[0].plans.[1].max_user_connections ))
 
 properties: {}  # Pivotal CF cannot generate global properties

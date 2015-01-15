@@ -8,7 +8,7 @@ compilation:
 networks: (( merge ))
 
 resource_pools:
-  - name: services-small
+  - name: services_small_z1
     stemcell:
       name: bosh-aws-xen-ubuntu-trusty-go_agent
       version: (( merge || "2719.3" ))
