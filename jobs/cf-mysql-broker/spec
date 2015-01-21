@@ -24,12 +24,12 @@ packages:
 - route-registrar
 
 properties:
-  auth_username:
+  cf-mysql-broker.auth_username:
     description: "Broker's basic auth username"
-  auth_password:
+  cf-mysql-broker.auth_password:
     description: "Broker's basic auth password"
 
-  cookie_secret:
+  cf-mysql-broker.cookie_secret:
     description: 'A unique secret key, used to sign sessions'
 
   mysql_node.host:
@@ -55,7 +55,7 @@ properties:
     description: 'number of user connections to allow in a plan if not specified'
     default: 40
 
-  services:
+  cf-mysql-broker.services:
     description: 'Services and plans offered by the broker'
 
   cc_api_uri:
