@@ -52,7 +52,7 @@ jobs:
     template: mysql
     instances: (( merge || 1 ))
     resource_pool: services_small_z1
-    persistent_disk: 100000
+    persistent_disk: (( .properties.mysql.persistent_disk ))
     networks:
     - name: services1
       static_ips: (( merge || static_ips(0) ))
@@ -71,7 +71,7 @@ jobs:
     template: mysql
     instances: (( merge || 1 ))
     resource_pool: services_small_z2
-    persistent_disk: 100000
+    persistent_disk: (( .properties.mysql.persistent_disk ))
     networks:
     - name: services2
       static_ips: (( merge || static_ips(0) ))
@@ -90,7 +90,7 @@ jobs:
     template: mysql
     instances: (( merge || 1 ))
     resource_pool: services_small_z3
-    persistent_disk: 100000
+    persistent_disk: (( .properties.mysql.persistent_disk ))
     networks:
     - name: services3
       static_ips: (( merge || static_ips(0) ))
@@ -163,6 +163,11 @@ jobs:
       networks:
         broker_network: services1
       services: (( .properties.cf-mysql-broker.services ))
+      mysql_node:
+        host: (( merge || jobs.proxy_z1.networks.services1.static_ips.[0] )) # HAProxy IP
+        admin_password: (( .properties.mysql.admin_password ))
+        persistent_disk: (( .properties.mysql.persistent_disk ))
+
 
   - name: cf-mysql-broker_z2
     release: cf-mysql
@@ -187,6 +192,12 @@ jobs:
       networks:
         broker_network: services2
       services: (( .properties.cf-mysql-broker.services ))
+      mysql_node:
+        host: (( merge || jobs.proxy_z2.networks.services2.static_ips.[0] )) # HAProxy IP
+        admin_password: (( .properties.mysql.admin_password ))
+        persistent_disk: (( .properties.mysql.persistent_disk ))
+
+
 
   - name: broker-registrar
     template: broker-registrar
@@ -245,6 +256,7 @@ properties:
     - (( jobs.mysql_z2.networks.services2.static_ips.[0] ))
     - (( jobs.mysql_z3.networks.services3.static_ips.[0] ))
     seeded_databases: ~
+    persistent_disk: 100000
   proxy:
     <<: (( merge || nil ))
     haproxy_mysql_user: (( properties.mysql.haproxy_mysql_user ))
