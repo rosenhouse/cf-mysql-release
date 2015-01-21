@@ -58,7 +58,7 @@ properties:
   cf-mysql-broker.services:
     description: 'Services and plans offered by the broker'
 
-  cf-mysql-broker.cc_api_uri:
+  cc_api_uri:
     description: 'URL of the CloudFoundry Cloud Controller'
 
   external_host:
