@@ -215,11 +215,6 @@ properties:
     admin_password: (( merge ))
     apps_domain: (( meta.apps_domain ))
     skip_ssl_validation: (( merge || false ))
-  broker:
-    name: p-mysql
-    host: (( properties.cf-mysql-broker.external_host ))
-    username: (( properties.cf-mysql-broker.auth_username ))
-    password: (( properties.cf-mysql-broker.auth_password ))
   mysql_node:
     host: (( merge || jobs.proxy_z1.networks.services1.static_ips.[0] )) # HAProxy IP
     admin_password: (( merge || jobs.mysql_z1.properties.admin_password ))
