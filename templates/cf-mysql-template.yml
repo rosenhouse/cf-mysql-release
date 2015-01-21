@@ -104,6 +104,7 @@ jobs:
       <<: (( merge || nil ))
       network_name: services1
       haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
+      mysql_ips: (( .properties.mysql.cluster_ips ))
 
   - name: proxy_z2
     release: cf-mysql
@@ -117,6 +118,7 @@ jobs:
       <<: (( merge || nil ))
       network_name: services2
       haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
+      mysql_ips: (( .properties.mysql.cluster_ips ))
 
   - name: cf-mysql-broker_z1
     release: cf-mysql
