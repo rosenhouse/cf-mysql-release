@@ -57,10 +57,14 @@ jobs:
     - name: services1
       static_ips: (( merge || static_ips(0) ))
     properties:
-      network_name: services1
       admin_password: (( merge || .properties.mysql.admin_password ))
-      cluster_ips: (( .properties.mysql.cluster_ips ))
+      max_connections: 1500
+      haproxy_mysql_user: (( .properties.mysql.haproxy_mysql_user ))
       proxy_ips: (( .properties.mysql.proxy_ips ))
+      cluster_ips: (( .properties.mysql.cluster_ips ))
+      seeded_databases: ~
+      syslog_aggregator: (( meta.syslog_aggregator  ))
+      network_name: services1
 
   - name: mysql_z2
     release: cf-mysql
@@ -72,10 +76,14 @@ jobs:
     - name: services2
       static_ips: (( merge || static_ips(0) ))
     properties:
-      network_name: services2
       admin_password: (( merge || .properties.mysql.admin_password ))
-      cluster_ips: (( .properties.mysql.cluster_ips ))
+      max_connections: 1500
+      haproxy_mysql_user: (( .properties.mysql.haproxy_mysql_user ))
       proxy_ips: (( .properties.mysql.proxy_ips ))
+      cluster_ips: (( .properties.mysql.cluster_ips ))
+      seeded_databases: ~
+      syslog_aggregator: (( meta.syslog_aggregator  ))
+      network_name: services2
 
   - name: mysql_z3
     release: cf-mysql
@@ -87,10 +95,14 @@ jobs:
     - name: services3
       static_ips: (( merge || static_ips(0) ))
     properties:
-      network_name: services3
       admin_password: (( merge || .properties.mysql.admin_password ))
-      cluster_ips: (( .properties.mysql.cluster_ips ))
+      max_connections: 1500
+      haproxy_mysql_user: (( .properties.mysql.haproxy_mysql_user ))
       proxy_ips: (( .properties.mysql.proxy_ips ))
+      cluster_ips: (( .properties.mysql.cluster_ips ))
+      seeded_databases: ~
+      syslog_aggregator: (( meta.syslog_aggregator  ))
+      network_name: services3
 
   - name: proxy_z1
     release: cf-mysql
@@ -102,10 +114,13 @@ jobs:
       static_ips: (( merge || static_ips(1) ))
     properties:
       <<: (( merge || nil ))
-      network_name: services1
-      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
+      haproxy_mysql_user: (( .properties.mysql.haproxy_mysql_user ))
       mysql_ips: (( .properties.mysql.cluster_ips ))
+      network_name: services1
+      syslog_aggregator: (( meta.syslog_aggregator  ))
+      nats: (( meta.nats  ))
       external_domain: (( .properties.proxy.external_domain ))
+      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
 
   - name: proxy_z2
     release: cf-mysql
@@ -117,10 +132,13 @@ jobs:
       static_ips: (( merge || static_ips(1) ))
     properties:
       <<: (( merge || nil ))
-      network_name: services2
-      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
+      haproxy_mysql_user: (( .properties.mysql.haproxy_mysql_user ))
       mysql_ips: (( .properties.mysql.cluster_ips ))
+      network_name: services2
+      syslog_aggregator: (( meta.syslog_aggregator  ))
+      nats: (( meta.nats  ))
       external_domain: (( .properties.proxy.external_domain ))
+      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
 
   - name: cf-mysql-broker_z1
     release: cf-mysql
@@ -215,10 +233,6 @@ properties:
     admin_password: (( merge ))
     apps_domain: (( meta.apps_domain ))
     skip_ssl_validation: (( merge || false ))
-  mysql_node:
-    host: (( merge || jobs.proxy_z1.networks.services1.static_ips.[0] )) # HAProxy IP
-    admin_password: (( merge || jobs.mysql_z1.properties.admin_password ))
-    persistent_disk: (( jobs.mysql_z1.persistent_disk))
   mysql:
     admin_password: (( merge ))
     max_connections: 1500
