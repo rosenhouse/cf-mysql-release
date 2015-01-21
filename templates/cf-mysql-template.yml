@@ -57,6 +57,7 @@ jobs:
     - name: services1
       static_ips: (( merge || static_ips(0) ))
     properties:
+      network_name: services1
       admin_password: (( merge || .properties.mysql.admin_password ))
 
   - name: mysql_z2
@@ -69,6 +70,7 @@ jobs:
     - name: services2
       static_ips: (( merge || static_ips(0) ))
     properties:
+      network_name: services2
       admin_password: (( merge || .properties.mysql.admin_password ))
 
   - name: mysql_z3
@@ -81,6 +83,7 @@ jobs:
     - name: services3
       static_ips: (( merge || static_ips(0) ))
     properties:
+      network_name: services3
       admin_password: (( merge || .properties.mysql.admin_password ))
 
   - name: proxy_z1
