@@ -59,6 +59,7 @@ jobs:
     properties:
       network_name: services1
       admin_password: (( merge || .properties.mysql.admin_password ))
+      cluster_ips: (( .properties.mysql.cluster_ips ))
 
   - name: mysql_z2
     release: cf-mysql
@@ -72,6 +73,7 @@ jobs:
     properties:
       network_name: services2
       admin_password: (( merge || .properties.mysql.admin_password ))
+      cluster_ips: (( .properties.mysql.cluster_ips ))
 
   - name: mysql_z3
     release: cf-mysql
@@ -85,6 +87,7 @@ jobs:
     properties:
       network_name: services3
       admin_password: (( merge || .properties.mysql.admin_password ))
+      cluster_ips: (( .properties.mysql.cluster_ips ))
 
   - name: proxy_z1
     release: cf-mysql
@@ -110,19 +113,6 @@ jobs:
     properties:
       <<: (( merge || nil ))
       network_name: services2
-      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
-
-  - name: proxy_z3
-    release: cf-mysql
-    template: proxy
-    instances: (( merge || 1 ))
-    resource_pool: services_small_z3
-    networks:
-    - name: services3
-      static_ips: (( merge || static_ips(1) ))
-    properties:
-      <<: (( merge || nil ))
-      network_name: services3
       haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
 
   - name: cf-mysql-broker_z1
@@ -210,7 +200,6 @@ properties:
     proxy_ips:
     - (( jobs.proxy_z1.networks.services1.static_ips.[0] ))
     - (( jobs.proxy_z2.networks.services2.static_ips.[0] ))
-    - (( jobs.proxy_z3.networks.services3.static_ips.[0] ))
     cluster_ips: 
     - (( jobs.mysql_z1.networks.services1.static_ips ))
     - (( jobs.mysql_z2.networks.services2.static_ips ))
