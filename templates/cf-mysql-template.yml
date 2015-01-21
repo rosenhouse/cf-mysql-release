@@ -227,9 +227,9 @@ properties:
     - (( jobs.proxy_z1.networks.services1.static_ips.[0] ))
     - (( jobs.proxy_z2.networks.services2.static_ips.[0] ))
     cluster_ips: 
-    - (( jobs.mysql_z1.networks.services1.static_ips ))
-    - (( jobs.mysql_z2.networks.services2.static_ips ))
-    - (( jobs.mysql_z3.networks.services3.static_ips ))
+    - (( jobs.mysql_z1.networks.services1.static_ips.[0] ))
+    - (( jobs.mysql_z2.networks.services2.static_ips.[0] ))
+    - (( jobs.mysql_z3.networks.services3.static_ips.[0] ))
     seeded_databases: ~
   proxy:
     <<: (( merge || nil ))
