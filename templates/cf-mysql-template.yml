@@ -131,9 +131,10 @@ jobs:
     - name: services1
     properties:
       <<: (( merge || nil ))
+      auth_username: (( .properties.broker.username ))
+      auth_password: (( .properties.broker.password ))
       networks:
         broker_network: services1
-
   - name: cf-mysql-broker_z2
     release: cf-mysql
     template: cf-mysql-broker
@@ -143,6 +144,8 @@ jobs:
     - name: services2
     properties:
       <<: (( merge || nil ))
+      auth_username: (( .properties.broker.username ))
+      auth_password: (( .properties.broker.password ))
       networks:
         broker_network: services2
 
