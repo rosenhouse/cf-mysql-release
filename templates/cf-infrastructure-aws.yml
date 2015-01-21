@@ -3,7 +3,7 @@ meta: ~
 compilation:
   cloud_properties:
     instance_type: c3.large
-    availability_zone: (( properties.template_only.aws.availability_zone ))
+    availability_zone: (( properties.template_only.aws.availability_zone1 ))
 
 networks: (( merge ))
 
@@ -14,7 +14,21 @@ resource_pools:
       version: (( merge || "2719.3" ))
     cloud_properties:
       instance_type: m3.medium
-      availability_zone: (( properties.template_only.aws.availability_zone ))
+      availability_zone: (( properties.template_only.aws.availability_zone1))
+  - name: services_small_z2
+    stemcell:
+      name: bosh-aws-xen-ubuntu-trusty-go_agent
+      version: (( merge || "2719.3" ))
+    cloud_properties:
+      instance_type: m3.medium
+      availability_zone: (( properties.template_only.aws.availability_zone2))
+  - name: services_small_z3
+    stemcell:
+      name: bosh-aws-xen-ubuntu-trusty-go_agent
+      version: (( merge || "2719.3" ))
+    cloud_properties:
+      instance_type: m3.medium
+      availability_zone: (( properties.template_only.aws.availability_zone3))
 
 properties:
   template_only: (( merge ))

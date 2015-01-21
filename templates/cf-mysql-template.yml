@@ -37,32 +37,115 @@ resource_pools:
     network: services1
     stemcell: (( merge ))
     cloud_properties: (( merge ))
+  - name: services_small_z2
+    network: services2
+    stemcell: (( merge ))
+    cloud_properties: (( merge ))
+  - name: services_small_z3
+    network: services3
+    stemcell: (( merge ))
+    cloud_properties: (( merge ))
 
 jobs:
   - name: mysql_z1
     release: cf-mysql
     template: mysql
-    instances: (( merge || 3 ))
+    instances: (( merge || 1 ))
     resource_pool: services_small_z1
     persistent_disk: 100000
     networks:
     - name: services1
-      static_ips: (( merge || static_ips(0, 1, 2) ))
+      static_ips: (( merge || static_ips(0) ))
+    properties:
+      admin_password: (( merge || .properties.mysql.admin_password ))
+
+  - name: mysql_z2
+    release: cf-mysql
+    template: mysql
+    instances: (( merge || 1 ))
+    resource_pool: services_small_z2
+    persistent_disk: 100000
+    networks:
+    - name: services2
+      static_ips: (( merge || static_ips(0) ))
+    properties:
+      admin_password: (( merge || .properties.mysql.admin_password ))
+
+  - name: mysql_z3
+    release: cf-mysql
+    template: mysql
+    instances: (( merge || 1 ))
+    resource_pool: services_small_z3
+    persistent_disk: 100000
+    networks:
+    - name: services3
+      static_ips: (( merge || static_ips(0) ))
+    properties:
+      admin_password: (( merge || .properties.mysql.admin_password ))
+
   - name: proxy_z1
     release: cf-mysql
     template: proxy
-    instances: (( merge || 2 ))
+    instances: (( merge || 1 ))
     resource_pool: services_small_z1
     networks:
     - name: services1
-      static_ips: (( merge || static_ips(4, 5) ))
+      static_ips: (( merge || static_ips(1) ))
+    properties:
+      <<: (( merge || nil ))
+      network_name: services1
+      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
+
+  - name: proxy_z2
+    release: cf-mysql
+    template: proxy
+    instances: (( merge || 1 ))
+    resource_pool: services_small_z2
+    networks:
+    - name: services2
+      static_ips: (( merge || static_ips(1) ))
+    properties:
+      <<: (( merge || nil ))
+      network_name: services2
+      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
+
+  - name: proxy_z3
+    release: cf-mysql
+    template: proxy
+    instances: (( merge || 1 ))
+    resource_pool: services_small_z3
+    networks:
+    - name: services3
+      static_ips: (( merge || static_ips(1) ))
+    properties:
+      <<: (( merge || nil ))
+      network_name: services3
+      haproxy_stats_password: (( merge || .properties.proxy.haproxy_stats_password ))
+
   - name: cf-mysql-broker_z1
     release: cf-mysql
     template: cf-mysql-broker
-    instances: 2
+    instances: 1
     resource_pool: services_small_z1
     networks:
     - name: services1
+    properties:
+      <<: (( merge || nil ))
+      networks:
+        broker_network: services1
+
+  - name: cf-mysql-broker_z2
+    release: cf-mysql
+    template: cf-mysql-broker
+    instances: 1
+    resource_pool: services_small_z2
+    networks:
+    - name: services2
+    properties:
+      <<: (( merge || nil ))
+      networks:
+        broker_network: services2
+
   - name: broker-registrar
     template: broker-registrar
     release: cf-mysql
@@ -114,8 +197,8 @@ properties:
     username: (( properties.cf-mysql-broker.auth_username ))
     password: (( properties.cf-mysql-broker.auth_password ))
   mysql_node:
-    host: (( merge || jobs.proxy.networks.services1.static_ips.[0] )) # HAProxy IP
-    admin_password: (( properties.mysql.admin_password ))
+    host: (( merge || jobs.proxy_z1.networks.services1.static_ips.[0] )) # HAProxy IP
+    admin_password: (( merge || jobs.mysql_z1.properties.admin_password ))
     persistent_disk: (( jobs.mysql_z1.persistent_disk))
   mysql:
     admin_password: (( merge ))
@@ -123,20 +206,23 @@ properties:
     haproxy_mysql_user: haproxy_check
     proxy_ips:
     - (( jobs.proxy_z1.networks.services1.static_ips.[0] ))
-    cluster_ips: (( jobs.mysql_z1.networks.services1.static_ips ))
+    - (( jobs.proxy_z2.networks.services2.static_ips.[0] ))
+    - (( jobs.proxy_z3.networks.services3.static_ips.[0] ))
+    cluster_ips: 
+    - (( jobs.mysql_z1.networks.services1.static_ips ))
+    - (( jobs.mysql_z2.networks.services2.static_ips ))
+    - (( jobs.mysql_z3.networks.services3.static_ips ))
     seeded_databases: ~
-    network_name: services1
   proxy:
     <<: (( merge || nil ))
     haproxy_mysql_user: (( properties.mysql.haproxy_mysql_user ))
     mysql_ips: (( properties.mysql.cluster_ips ))
-    network_name: services1
     external_domain: (( meta.external_domain ))
     haproxy_stats_password: (( merge ))
   cf-mysql-broker:
+    <<: (( merge || nil ))
     max_user_connections_default: (( merge || 40 ))
     syslog_aggregator: (( meta.syslog_aggregator ))
-    network_name: services1
     auth_username: (( merge ))
     auth_password: (( merge ))
     cookie_secret: (( merge ))
@@ -145,8 +231,6 @@ properties:
     skip_ssl_validation: (( merge || false ))
     cc_api_uri: (( merge ))
     nats: (( meta.nats ))
-    networks:
-      broker_network: services1
     services:
     - name: p-mysql
       plan_updateable: (( merge || true ))

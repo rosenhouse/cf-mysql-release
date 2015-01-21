@@ -14,6 +14,32 @@ networks:
           - 10.10.0.2 # amazon has only 1 DNS server for the whole VPC at x.x.0.2
         cloud_properties:
           subnet: (( properties.template_only.aws.subnet_ids.services1 ))
+  - name: services2
+    type: manual
+    subnets:
+      - range: 10.10.96.0/20
+        reserved:
+          - 10.10.96.2 - 10.10.96.9
+        static:
+          - 10.10.96.10 - 10.10.96.255
+        gateway: 10.10.96.1
+        dns:
+          - 10.10.0.2 # amazon has only 1 DNS server for the whole VPC at x.x.0.2
+        cloud_properties:
+          subnet: (( properties.template_only.aws.subnet_ids.services2 ))
+  - name: services3
+    type: manual
+    subnets:
+      - range: 10.10.192.0/20
+        reserved:
+          - 10.10.192.2 - 10.10.192.9
+        static:
+          - 10.10.192.10 - 10.10.192.255
+        gateway: 10.10.192.1
+        dns:
+          - 10.10.0.2 # amazon has only 1 DNS server for the whole VPC at x.x.0.2
+        cloud_properties:
+          subnet: (( properties.template_only.aws.subnet_ids.services3 ))
 
 properties:
   cf:
@@ -25,10 +51,14 @@ properties:
 
   template_only:
     aws:
-      availability_zone: YOUR_AWS_AVAILABILITY_ZONE #From the EC2 page of the AWS console, like us-east-1a
+      availability_zone1: YOUR_AWS_AVAILABILITY_ZONE #From the EC2 page of the AWS console, like us-east-1a
+      availability_zone2: YOUR_AWS_AVAILABILITY_ZONE #From the EC2 page of the AWS console, like us-east-1a
+      availability_zone3: YOUR_AWS_AVAILABILITY_ZONE #From the EC2 page of the AWS console, like us-east-1a
       subnet_ids:
         # From VPC/Subnets page of AWS console. Availability zone must match the value set above.
         services1: YOUR_SUBNET_ID
+        services2: YOUR_SUBNET_ID
+        services3: YOUR_SUBNET_ID
 
 meta:
   environment: YOUR_ENVIRONMENT_NAME
