@@ -224,6 +224,14 @@ jobs:
     networks:
     - name: services1
     properties:
+      cf:
+        api_url: (( .properties.cf-mysql-broker.cc_api_uri ))
+        admin_username: (( merge ))
+        admin_password: (( merge ))
+        apps_domain: (( meta.apps_domain ))
+        skip_ssl_validation: (( merge || false ))
+      broker:
+        host: (( .properties.cf-mysql-broker.external_host ))
       service:
         max_user_connections_default: (( .properties.cf-mysql-broker.max_user_connections_default ))
         name: (( .properties.cf-mysql-broker.services.[0].name ))
