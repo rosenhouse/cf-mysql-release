@@ -118,6 +118,8 @@ If deploying an **older** final release than the latest, check out the tag for t
 
 #### BOSH-lite<a name="bosh-lite"></a>
 
+1. Inspect the manifest stubs at `bosh-lite/cf-mysql-stub*.yml` and check that the domains are right for your BOSH-lite environment.
+
 1. Generate the manifest using a bosh-lite specific script and a stub provided for you, `bosh-lite/cf-mysql-stub-spiff.yml`.
 
     ```
